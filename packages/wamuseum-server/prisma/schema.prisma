@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  username     String     @unique
+  email        String     @unique
+  password     String     @db.VarChar(255)
+  passwordSalt String     @db.VarChar(255)
+  created_at   DateTime   @default(now())
+  auth_token   AuthToken?
+  is_staff     Boolean    @default(false)
+}
+
+model AuthToken {
+  id            String   @id @default(uuid())
+  auth_token    String   @db.Text
+  refresh_token String   @db.Text
+  user          User     @relation(fields: [user_id], references: [id])
+  user_id       String   @unique
+  created_at    DateTime @default(now())
+}
+
+model Track {
+  id         String   @id @default(uuid())
+  filename   String   @unique
+  url        String   @unique
+  created_at DateTime @default(now())
+  post       Post?    @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post_id    String?
+  song       Song?    @relation(fields: [song_id], references: [id], onDelete: Cascade)
+  song_id    String?  @unique
+}
+
+model AlbumCover {
+  id         String   @id @default(uuid())
+  filename   String   @unique
+  url        String   @unique
+  created_at DateTime @default(now())
+  post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post_id    String   @unique
+}
+
+model Post {
+  id          String      @id @default(uuid())
+  title       String
+  artist_name String
+  album_cover AlbumCover?
+  track       Track[]
+  song        Song[]
+  created_at  DateTime    @default(now())
+}
+
+model Song {
+  id         String   @id @default(uuid())
+  title      String
+  created_at DateTime @default(now())
+  post       Post?    @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post_id    String?
+  track      Track?
+}
