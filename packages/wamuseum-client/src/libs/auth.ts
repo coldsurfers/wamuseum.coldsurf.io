@@ -156,10 +156,10 @@ export const config = {
       if (provider !== 'google' || !accessToken) {
         return false
       }
-    //   await fetchSignIn({
-    //     provider,
-    //     social_token: accessToken,
-    //   })
+      //   await fetchSignIn({
+      //     provider,
+      //     social_token: accessToken,
+      //   })
       return true
     },
   },
