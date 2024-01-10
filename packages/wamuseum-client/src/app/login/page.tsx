@@ -4,14 +4,16 @@ import { signIn } from 'next-auth/react'
 import { useCallback } from 'react'
 
 export default function LoginPage() {
-    const onClickGoogleLogin = useCallback(async () => {
-        await signIn('google')
-    }, [])
+  const onClickGoogleLogin = useCallback(async () => {
+    await signIn('google')
+  }, [])
 
-    return (
-        <section>
-            <h1>Google Login</h1>
-            <button onClick={onClickGoogleLogin}>Login</button>
-        </section>
-    )
+  return (
+    <div>
+      <section>
+        <h2>Google Login</h2>
+        <button onClick={onClickGoogleLogin}>Login</button>
+      </section>
+    </div>
+  )
 }

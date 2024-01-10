@@ -1,18 +1,17 @@
 /* eslint-disable class-methods-use-this */
 import { prisma } from '../database/prisma'
 
-export type UserSerialized = {
+export type AccountSerialized = {
   id: string
   email: string
   username: string
   created_at: string
-  is_staff: boolean
 }
 
-export default class User {
+export default class Account {
   public id?: string
 
-  public username!: string
+  public username?: string
 
   public email!: string
 
@@ -24,14 +23,17 @@ export default class User {
 
   public is_staff?: boolean
 
+  public provider?: string
+
   constructor(params: {
     id?: string
     email: string
-    username: string
+    username?: string
     password?: string
     passwordSalt?: string
     created_at?: Date
     is_staff?: boolean
+    provider?: string
   }) {
     this.id = params.id
     this.email = params.email
@@ -40,33 +42,25 @@ export default class User {
     this.passwordSalt = params.passwordSalt
     this.created_at = params.created_at
     this.is_staff = params.is_staff
+    this.provider = params.provider
   }
 
-  public static async find({
-    email,
-    username,
-  }: {
-    email?: string
-    username: string
-  }) {
+  public static async findByEmail(email: string) {
     // eslint-disable-next-line no-underscore-dangle
-    const _user = await prisma.user.findUnique({
+    const _user = await prisma.account.findUnique({
       where: {
         email,
-        username,
       },
     })
 
     if (!_user) return null
 
-    const user = new User({
-      email: _user.email,
-      id: _user.id,
-      created_at: _user.created_at,
-      username: _user.username,
-      password: _user.password,
-      passwordSalt: _user.passwordSalt,
-      is_staff: _user.is_staff,
+    const user = new Account({
+      ..._user,
+      username: _user.username ?? undefined,
+      password: _user.password ?? undefined,
+      passwordSalt: _user.passwordSalt ?? undefined,
+      provider: _user.provider ?? undefined,
     })
 
     return user
@@ -77,22 +71,24 @@ export default class User {
       throw Error('password, password salt')
     }
     // eslint-disable-next-line no-underscore-dangle
-    const _user = await prisma.user.create({
+    const _user = await prisma.account.create({
       data: {
         email: this.email,
         username: this.username,
         password: this.password,
         passwordSalt: this.passwordSalt,
+        provider: this.provider,
       },
     })
 
     if (!_user) return null
 
-    const user = new User({
+    const user = new Account({
       created_at: _user.created_at,
       email: _user.email,
       id: _user.id,
-      username: _user.username,
+      username: _user.username ?? undefined,
+      provider: _user.provider ?? undefined,
     })
 
     return user
@@ -105,7 +101,7 @@ export default class User {
     userId: string
     email: string
   }) {
-    const updated = await prisma.user.update({
+    const updated = await prisma.account.update({
       where: {
         id: userId,
       },
@@ -114,11 +110,12 @@ export default class User {
       },
     })
 
-    const user = new User({
-      id: updated.id,
-      email: updated.email,
-      username: updated.username,
-      created_at: updated.created_at,
+    const user = new Account({
+      ...updated,
+      username: updated.username ?? undefined,
+      password: updated.password ?? undefined,
+      passwordSalt: updated.passwordSalt ?? undefined,
+      provider: updated.provider ?? undefined,
     })
 
     return user
@@ -133,7 +130,7 @@ export default class User {
     password: string
     passwordSalt: string
   }) {
-    const updated = await prisma.user.update({
+    const updated = await prisma.account.update({
       where: {
         id: userId,
       },
@@ -143,20 +140,23 @@ export default class User {
       },
     })
 
-    const user = new User({
+    const user = new Account({
       ...updated,
+      username: updated.username ?? undefined,
+      password: updated.password ?? undefined,
+      passwordSalt: updated.passwordSalt ?? undefined,
+      provider: updated.provider ?? undefined,
     })
 
     return user
   }
 
-  public serialize(): UserSerialized {
+  public serialize(): AccountSerialized {
     return {
       id: this.id ?? '',
       email: this.email,
-      username: this.username,
+      username: this.username ?? '',
       created_at: this.created_at?.toISOString() ?? '',
-      is_staff: !!this.is_staff,
     }
   }
 }

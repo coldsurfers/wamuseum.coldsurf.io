@@ -2,52 +2,49 @@
 import { prisma } from '../database/prisma'
 
 export type AuthTokenSerialized = {
-  id: string
-  auth_token: string
+  access_token: string
   refresh_token: string
-  user_id: string
-  created_at: string
 }
 
 export default class AuthToken {
   public id?: string
 
-  public auth_token!: string
+  public access_token!: string
 
   public refresh_token!: string
 
-  public user_id!: string
+  public account_id!: string
 
   public created_at?: Date
 
   constructor(params: {
     id?: string
-    auth_token: string
+    access_token: string
     refresh_token: string
-    user_id: string
+    account_id: string
     created_at?: Date
   }) {
     this.id = params.id
-    this.auth_token = params.auth_token
+    this.access_token = params.access_token
     this.refresh_token = params.refresh_token
-    this.user_id = params.user_id
+    this.account_id = params.account_id
     this.created_at = params.created_at
   }
 
-  public static async getByUserId(userId: string) {
+  public static async findByAccountId(accountId: string) {
     // eslint-disable-next-line no-return-await
     const _authToken = await prisma.authToken.findUnique({
       where: {
-        user_id: userId,
+        account_id: accountId,
       },
     })
 
     if (!_authToken) return null
 
     const authToken = new AuthToken({
-      auth_token: _authToken.auth_token,
+      access_token: _authToken.access_token,
       refresh_token: _authToken.refresh_token,
-      user_id: _authToken.user_id,
+      account_id: _authToken.account_id,
       id: _authToken.id,
       created_at: _authToken.created_at,
     })
@@ -55,10 +52,10 @@ export default class AuthToken {
     return authToken
   }
 
-  public static async deleteByUserId(userId: string) {
+  public static async deleteByAccountId(accountId: string) {
     await prisma.authToken.delete({
       where: {
-        user_id: userId,
+        account_id: accountId,
       },
     })
   }
@@ -72,16 +69,16 @@ export default class AuthToken {
   }
 
   public async create() {
-    const existing = await AuthToken.getByUserId(this.user_id)
+    const existing = await AuthToken.findByAccountId(this.account_id)
     if (existing && existing.id) {
       await AuthToken.deleteById(existing.id)
     }
     // eslint-disable-next-line no-return-await
     const _authToken = await prisma.authToken.create({
       data: {
-        auth_token: this.auth_token,
+        access_token: this.access_token,
         refresh_token: this.refresh_token,
-        user_id: this.user_id,
+        account_id: this.account_id,
       },
     })
 
@@ -94,11 +91,8 @@ export default class AuthToken {
 
   public serialize(): AuthTokenSerialized {
     return {
-      id: this.id ?? '',
-      auth_token: this.auth_token,
+      access_token: this.access_token,
       refresh_token: this.refresh_token,
-      user_id: this.user_id,
-      created_at: this.created_at?.toISOString() ?? '',
     }
   }
 }

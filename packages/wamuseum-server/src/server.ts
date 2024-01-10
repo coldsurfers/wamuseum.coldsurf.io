@@ -7,7 +7,7 @@ import jwt from '@fastify/jwt'
 import fastifyStatic from '@fastify/static'
 import fastifyMultipart from '@fastify/multipart'
 
-const fastify = Fastify({
+export const fastify = Fastify({
   ignoreTrailingSlash: true,
   logger: {
     level: 'info',

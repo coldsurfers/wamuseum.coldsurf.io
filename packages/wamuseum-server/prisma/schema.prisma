@@ -10,12 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Account {
   id           String     @id @default(uuid())
-  username     String     @unique
+  username     String?    @unique
   email        String     @unique
-  password     String     @db.VarChar(255)
-  passwordSalt String     @db.VarChar(255)
+  provider     String?
+  password     String?    @db.VarChar(255)
+  passwordSalt String?    @db.VarChar(255)
   created_at   DateTime   @default(now())
   auth_token   AuthToken?
   is_staff     Boolean    @default(false)
@@ -23,10 +24,10 @@ model User {
 
 model AuthToken {
   id            String   @id @default(uuid())
-  auth_token    String   @db.Text
+  access_token  String   @db.Text
   refresh_token String   @db.Text
-  user          User     @relation(fields: [user_id], references: [id])
-  user_id       String   @unique
+  account       Account  @relation(fields: [account_id], references: [id])
+  account_id    String   @unique
   created_at    DateTime @default(now())
 }
 

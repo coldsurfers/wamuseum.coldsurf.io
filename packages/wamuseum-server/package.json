@@ -11,7 +11,9 @@
     "start": "NODE_ENV=production node ./dist/server.js",
     "postinstall": "yarn prisma generate",
     "lint": "eslint --cache \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint:fix": "yarn lint --fix"
+    "lint:fix": "yarn lint --fix",
+    "db:generate": "yarn prisma format && yarn prisma generate",
+    "db:push": "yarn prisma db push"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.484.0",
@@ -25,7 +27,9 @@
     "@prisma/client": "^5.7.1",
     "crypto-js": "^4.2.0",
     "fastify": "^4.25.2",
-    "nconf": "^0.12.1"
+    "google-auth-library": "^9.4.1",
+    "nconf": "^0.12.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.1",
