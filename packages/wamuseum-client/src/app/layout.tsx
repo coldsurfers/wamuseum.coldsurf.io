@@ -7,6 +7,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Header from '@/ui-components/Header'
 import { auth } from '@/libs/auth'
+import SideBar from '@/ui-components/SideBar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,6 +27,7 @@ export default async function RootLayout({ children }: PropsWithChildren<{}>) {
       <body className={inter.className}>
         <SessionProvider session={session}>
           <Header />
+          <SideBar />
           {children}
         </SessionProvider>
       </body>

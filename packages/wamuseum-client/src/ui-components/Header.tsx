@@ -13,7 +13,11 @@ export default function Header() {
   return (
     <h2 className={styles.heading}>
       <Link href="/">WaMuseum</Link>
-      {session && <p onClick={onClickLogout}>Logout</p>}
+      {session && (
+        <p className={styles.logout} onClick={onClickLogout}>
+          Logout
+        </p>
+      )}
     </h2>
   )
 }
