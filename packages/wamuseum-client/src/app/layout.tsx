@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import Header from '@/ui-components/Header'
 import { auth } from '@/libs/auth'
 import SideBar from '@/ui-components/SideBar'
+import ProtectedRouter from '@/libs/ProtectedRouter'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -29,6 +30,7 @@ export default async function RootLayout({ children }: PropsWithChildren<{}>) {
           <Header />
           <SideBar />
           {children}
+          <ProtectedRouter />
         </SessionProvider>
       </body>
     </html>
