@@ -156,11 +156,28 @@ export const config = {
       if (provider !== 'google' || !accessToken) {
         return false
       }
-      //   await fetchSignIn({
-      //     provider,
-      //     social_token: accessToken,
-      //   })
-      return true
+      const host =
+        process.env.NODE_ENV === 'development' ? 'http://0.0.0.0:8001' : ''
+      const url = `${host}/v1/accounts/signup`
+      try {
+        const result = await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify({
+            provider,
+            access_token: accessToken,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        if (!result.ok) {
+          throw Error(`status code: ${result.status}`)
+        }
+        return true
+      } catch (e) {
+        console.error(e)
+        return false
+      }
     },
   },
 } satisfies NextAuthConfig

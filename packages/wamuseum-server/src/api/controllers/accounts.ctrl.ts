@@ -29,6 +29,7 @@ export const postAccountsSignupCtrl: RouteHandler<{
 }> = async (req, rep) => {
   try {
     const validation = PostAccountsSignupCtrlBodySchema.safeParse(req.body)
+
     if (!validation.success) {
       return rep.status(400).send()
     }
@@ -37,10 +38,13 @@ export const postAccountsSignupCtrl: RouteHandler<{
     if (provider !== 'google') return rep.status(501).send()
     const tokenInfo = await OAuth2Client.getTokenInfo(access_token)
     const { email: gmail } = tokenInfo
+
     if (!gmail) return rep.status(400).send()
 
     const existingAccount = await Account.findByEmail(gmail)
-    if (existingAccount) return rep.status(409).send()
+    if (existingAccount) {
+      return rep.redirect(200, '/v1/accounts/signin')
+    }
 
     const account = await new Account({
       email: gmail,

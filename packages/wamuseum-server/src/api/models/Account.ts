@@ -67,9 +67,6 @@ export default class Account {
   }
 
   public async create() {
-    if (!this.password || !this.passwordSalt) {
-      throw Error('password, password salt')
-    }
     // eslint-disable-next-line no-underscore-dangle
     const _user = await prisma.account.create({
       data: {
