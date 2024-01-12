@@ -64,6 +64,7 @@ import Google from 'next-auth/providers/google'
 // import Zoom from "next-auth/providers/zoom"
 
 import type { NextAuthConfig } from 'next-auth'
+import request from './request'
 // import fetchSignIn from '@/fetchers/fetchSignIn'
 
 export const config = {
@@ -142,8 +143,8 @@ export const config = {
     // Zoom,
   ],
   callbacks: {
-    authorized({ request, auth }) {
-      const { pathname } = request.nextUrl
+    authorized({ request: paramsRequest, auth }) {
+      const { pathname } = paramsRequest.nextUrl
       if (pathname === '/middleware-example') return !!auth
       return true
     },
@@ -156,11 +157,8 @@ export const config = {
       if (provider !== 'google' || !accessToken) {
         return false
       }
-      const host =
-        process.env.NODE_ENV === 'development' ? 'http://0.0.0.0:8001' : ''
-      const url = `${host}/v1/accounts/signup`
       try {
-        const result = await fetch(url, {
+        const result = await request('/v1/accounts/signup', {
           method: 'POST',
           body: JSON.stringify({
             provider,
