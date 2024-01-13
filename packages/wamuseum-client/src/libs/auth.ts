@@ -158,7 +158,7 @@ export const config = {
         return false
       }
       try {
-        const result = await request('/v1/accounts/signup', {
+        const result = await request('/v1/accounts/signin', {
           method: 'POST',
           body: JSON.stringify({
             provider,

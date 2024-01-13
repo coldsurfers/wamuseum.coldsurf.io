@@ -19,7 +19,16 @@ model Account {
   passwordSalt String?    @db.VarChar(255)
   created_at   DateTime   @default(now())
   auth_token   AuthToken?
-  is_staff     Boolean    @default(false)
+  staff        Staff?
+}
+
+model Staff {
+  id            String   @id @default(uuid())
+  created_at    DateTime @default(now())
+  is_staff      Boolean  @default(false)
+  is_authorized Boolean  @default(false)
+  account       Account  @relation(fields: [account_id], references: [id])
+  account_id    String   @unique
 }
 
 model AuthToken {
