@@ -5,15 +5,7 @@ import Account from '../models/Account'
 import generateAuthTokenFromAccount from '../../lib/generateAuthTokenFromAccount'
 import { JWTDecoded } from '../../types/jwt'
 import AuthToken from '../models/AuthToken'
-
-const PostAccountsSignupCtrlBodySchema = z.object({
-  provider: z.string(),
-  access_token: z.string(),
-})
-
-type PostAccountsSignupCtrlBodySchemaType = z.infer<
-  typeof PostAccountsSignupCtrlBodySchema
->
+import Staff from '../models/Staff'
 
 const PostAccountsSignInCtrlBodySchema = z.object({
   provider: z.string(),
@@ -23,54 +15,6 @@ const PostAccountsSignInCtrlBodySchema = z.object({
 type PostAccountsSignInCtrlBodySchemaType = z.infer<
   typeof PostAccountsSignInCtrlBodySchema
 >
-
-export const postAccountsSignupCtrl: RouteHandler<{
-  Body: PostAccountsSignupCtrlBodySchemaType
-}> = async (req, rep) => {
-  try {
-    const validation = PostAccountsSignupCtrlBodySchema.safeParse(req.body)
-
-    if (!validation.success) {
-      return rep.status(400).send()
-    }
-    const { data: postBody } = validation
-    const { provider, access_token } = postBody
-    if (provider !== 'google') return rep.status(501).send()
-    const tokenInfo = await OAuth2Client.getTokenInfo(access_token)
-    const { email: gmail } = tokenInfo
-
-    if (!gmail) return rep.status(400).send()
-
-    const existingAccount = await Account.findByEmail(gmail)
-    if (existingAccount) {
-      return rep.redirect(200, '/v1/accounts/signin')
-    }
-
-    const account = await new Account({
-      email: gmail,
-      provider: 'google',
-    }).create()
-
-    if (!account) return rep.status(500).send()
-    const { id: accountId } = account
-
-    if (!accountId) {
-      return rep.status(500).send()
-    }
-
-    const accountAuthToken = await (
-      await generateAuthTokenFromAccount(account)
-    ).create()
-
-    return rep.status(200).send({
-      auth_token: accountAuthToken.serialize(),
-      account: account.serialize(),
-    })
-  } catch (e) {
-    const error = e as FastifyError
-    return rep.status(error.statusCode ?? 500).send(error)
-  }
-}
 
 export const postAccountsSignInCtrl: RouteHandler<{
   Body: PostAccountsSignInCtrlBodySchemaType
@@ -87,16 +31,37 @@ export const postAccountsSignInCtrl: RouteHandler<{
     const { email: gmail } = tokenInfo
     if (!gmail) return rep.status(400).send()
 
-    const account = await Account.findByEmail(gmail)
-    if (!account) return rep.status(404).send()
+    const existingAccount = await Account.findByEmail(gmail)
+    // sign "up" flow
+    if (!existingAccount) {
+      const newAccount = await new Account({
+        email: gmail,
+        provider: 'google',
+      }).create()
+      if (!newAccount) return rep.status(500).send()
+      // TODO send email to admin
+      return rep.status(201).send({
+        account: newAccount.serialize(),
+        auth_token: null,
+      })
+    }
+
+    // sign "in" flow
+    const { id: existingAccountId } = existingAccount
+
+    if (!existingAccountId) return rep.status(404).send()
+
+    const staff = await Staff.findByAccountId(existingAccountId)
+
+    if (!staff?.is_staff) return rep.status(404).send()
 
     const accountAuthToken = await (
-      await generateAuthTokenFromAccount(account)
+      await generateAuthTokenFromAccount(existingAccount)
     ).create()
 
     return rep.status(200).send({
       auth_token: accountAuthToken.serialize(),
-      account: account.serialize(),
+      account: existingAccount.serialize(),
     })
   } catch (e) {
     const error = e as FastifyError

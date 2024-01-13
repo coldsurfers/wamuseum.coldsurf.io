@@ -1,48 +1,35 @@
 /* eslint-disable class-methods-use-this */
+import { z } from 'zod'
 import { prisma } from '../database/prisma'
 
-export type AccountSerialized = {
-  id: string
-  email: string
-  username: string
-  created_at: string
-}
+export const AccountModelSchema = z.object({
+  id: z.string().optional(),
+  username: z.string().optional(),
+  email: z.string().email(),
+  password: z.string().optional(),
+  passwordSalt: z.string().optional(),
+  created_at: z.date().optional(),
+  provider: z.string().optional(),
+})
+
+export type AccountModelSchemaType = z.infer<typeof AccountModelSchema>
+
+export const AccountSerializedSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  username: z.string(),
+  created_at: z.string(),
+})
+
+export type AccountSerializedSchemaType = z.infer<
+  typeof AccountSerializedSchema
+>
 
 export default class Account {
-  public id?: string
+  private props: AccountModelSchemaType
 
-  public username?: string
-
-  public email!: string
-
-  public password?: string
-
-  public passwordSalt?: string
-
-  public created_at?: Date
-
-  public is_staff?: boolean
-
-  public provider?: string
-
-  constructor(params: {
-    id?: string
-    email: string
-    username?: string
-    password?: string
-    passwordSalt?: string
-    created_at?: Date
-    is_staff?: boolean
-    provider?: string
-  }) {
-    this.id = params.id
-    this.email = params.email
-    this.username = params.username
-    this.password = params.password
-    this.passwordSalt = params.passwordSalt
-    this.created_at = params.created_at
-    this.is_staff = params.is_staff
-    this.provider = params.provider
+  constructor(props: AccountModelSchemaType) {
+    this.props = props
   }
 
   public static async findByEmail(email: string) {
@@ -66,29 +53,29 @@ export default class Account {
     return user
   }
 
-  public async create() {
-    // eslint-disable-next-line no-underscore-dangle
-    const _user = await prisma.account.create({
+  public get id() {
+    return this.props.id
+  }
+
+  public get email() {
+    return this.props.email
+  }
+
+  public async create(): Promise<Account> {
+    const created = await prisma.account.create({
       data: {
-        email: this.email,
-        username: this.username,
-        password: this.password,
-        passwordSalt: this.passwordSalt,
-        provider: this.provider,
+        ...this.props,
       },
     })
 
-    if (!_user) return null
-
-    const user = new Account({
-      created_at: _user.created_at,
-      email: _user.email,
-      id: _user.id,
-      username: _user.username ?? undefined,
-      provider: _user.provider ?? undefined,
+    return new Account({
+      ...created,
+      email: created.email,
+      password: created.password ?? undefined,
+      passwordSalt: created.passwordSalt ?? undefined,
+      provider: created.provider ?? undefined,
+      username: created.username ?? undefined,
     })
-
-    return user
   }
 
   public static async changeEmail({
@@ -148,12 +135,12 @@ export default class Account {
     return user
   }
 
-  public serialize(): AccountSerialized {
+  public serialize(): AccountSerializedSchemaType {
     return {
-      id: this.id ?? '',
-      email: this.email,
-      username: this.username ?? '',
-      created_at: this.created_at?.toISOString() ?? '',
+      id: this.props.id ?? '',
+      email: this.props.email,
+      username: this.props.username ?? '',
+      created_at: this.props.created_at?.toISOString() ?? '',
     }
   }
 }

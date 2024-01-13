@@ -4,7 +4,6 @@ import path from 'path'
 import AutoLoad from '@fastify/autoload'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
-import fastifyStatic from '@fastify/static'
 import fastifyMultipart from '@fastify/multipart'
 
 export const fastify = Fastify({
@@ -34,7 +33,7 @@ async function main() {
       origin:
         process.env.NODE_ENV === 'development'
           ? ['http://localhost:3000']
-          : ['https://louder.coldsurf.io'],
+          : ['https://wamuseum.coldsurf.io'],
       preflight: true,
       optionsSuccessStatus: 200,
       methods: ['GET', 'POST', 'OPTIONS', 'PATCH', 'PUT', 'DELETE'],
@@ -50,16 +49,6 @@ async function main() {
       },
       attachFieldsToBody: false,
     })
-    await fastify.register(fastifyStatic, {
-      root: path.join(__dirname, '../public/assets'),
-      prefix: '/static/',
-    })
-
-    await fastify.register(fastifyStatic, {
-      root: path.join(__dirname, '../public/media'),
-      prefix: '/media/',
-      decorateReply: false,
-    })
 
     await fastify.register(AutoLoad, {
       dir: path.resolve(__dirname, './api/routes'),
@@ -71,10 +60,6 @@ async function main() {
     await fastify.register(jwt, {
       secret: nconf.get('secrets').jwt,
     })
-
-    await fastify.setNotFoundHandler(async (req, res) =>
-      res.sendFile('bundles/index.html')
-    )
 
     await fastify.listen({ port: nconf.get('port'), host: '0.0.0.0' })
     fastify.log.info('server started', process.env.NODE_ENV)
