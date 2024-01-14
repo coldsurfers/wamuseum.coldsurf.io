@@ -1,5 +1,6 @@
 import { FastifyError, RouteHandler } from 'fastify'
 import { z } from 'zod'
+import nconf from 'nconf'
 import OAuth2Client from '../../lib/OAuth2Client'
 import Account from '../models/Account'
 import generateAuthTokenFromAccount from '../../lib/generateAuthTokenFromAccount'
@@ -45,7 +46,7 @@ export const postAccountsSignInCtrl: RouteHandler<{
       }).create()
       if (!newAccount) return rep.status(500).send()
       sendEmail({
-        to: process.env.MAILER_EMAIL_ADDRESS,
+        to: nconf.get('secrets').MAILER_EMAIL_ADDRESS,
         subject: mailerSubject,
         text: mailerText(gmail),
       })

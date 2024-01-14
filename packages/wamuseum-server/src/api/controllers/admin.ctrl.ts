@@ -5,6 +5,7 @@ import util from 'util'
 import { pipeline } from 'node:stream'
 import path from 'path'
 import { generateUUID } from '@coldsurfers/shared-utils'
+import nconf from 'nconf'
 import Track from '../models/Track'
 import Post from '../models/Post'
 import Song from '../models/Song'
@@ -23,7 +24,7 @@ export const postAdminPresigned: RouteHandler<{
   try {
     const { filename, contentType } = req.body
     const result = await createPresignedPost({
-      Bucket: process.env.AWS_S3_BUCKET ?? '',
+      Bucket: nconf.get('secrets').AWS_S3_BUCKET,
       Key: `${AWS_S3_ADMIN_PRESIGNED_DIR}/media/${filename}`,
       Fields: {
         acl: 'public-read',
