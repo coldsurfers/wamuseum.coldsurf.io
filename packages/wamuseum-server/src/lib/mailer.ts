@@ -1,9 +1,7 @@
+import nconf from 'nconf'
 import mailer from 'nodemailer'
 import smtpTransport from 'nodemailer-smtp-transport'
 import Mail from 'nodemailer/lib/mailer'
-
-const { MAILER_EMAIL_ADDRESS, MAILER_EMAIL_APP_PASSWORD, MAILER_SERVICE } =
-  process.env
 
 // eslint-disable-next-line import/prefer-default-export
 export async function sendEmail({
@@ -13,15 +11,15 @@ export async function sendEmail({
 }: Pick<Mail.Options, 'to' | 'text' | 'subject'>) {
   const transport = mailer.createTransport(
     smtpTransport({
-      service: MAILER_SERVICE,
+      service: nconf.get('MAILER_SERVICE'),
       auth: {
-        user: MAILER_EMAIL_ADDRESS,
-        pass: MAILER_EMAIL_APP_PASSWORD,
+        user: nconf.get('MAILER_EMAIL_ADDRESS'),
+        pass: nconf.get('secrets').MAILER_EMAIL_APP_PASSWORD,
       },
     })
   )
   const mailOptions: Mail.Options = {
-    from: MAILER_EMAIL_ADDRESS,
+    from: nconf.get('MAILER_EMAIL_ADDRESS'),
     to,
     subject, // 이메일 제목
     text, // 이메일 내용

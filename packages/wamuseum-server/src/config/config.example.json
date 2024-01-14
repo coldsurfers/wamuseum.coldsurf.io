@@ -1,6 +1,13 @@
 {
     "port": "",
     "secrets": {
-        "jwt": ""
-    }
+        "jwt": "",
+        "AWS_S3_BUCKET": "",
+        "AWS_S3_REGION": "",
+        "AWS_S3_ACCESS_KEY_ID": "",
+        "AWS_S3_SECRET_ACCESS_KEY": "",
+        "MAILER_EMAIL_APP_PASSWORD": ""
+    },
+    "MAILER_EMAIL_ADDRESS": "",
+    "MAILER_SERVICE": ""
 }
