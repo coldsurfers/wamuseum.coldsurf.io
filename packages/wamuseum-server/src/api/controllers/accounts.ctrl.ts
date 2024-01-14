@@ -22,6 +22,19 @@ type PostAccountsSignInCtrlBodySchemaType = z.infer<
   typeof PostAccountsSignInCtrlBodySchema
 >
 
+export const getAccountsListCtrl: RouteHandler<{
+  Querystring: {
+    page?: string
+  }
+}> = async (req, rep) => {
+  try {
+    return rep.status(200).send([])
+  } catch (e) {
+    const error = e as FastifyError
+    return rep.status(error.statusCode ?? 500).send(error)
+  }
+}
+
 export const postAccountsSignInCtrl: RouteHandler<{
   Body: PostAccountsSignInCtrlBodySchemaType
 }> = async (req, rep) => {
