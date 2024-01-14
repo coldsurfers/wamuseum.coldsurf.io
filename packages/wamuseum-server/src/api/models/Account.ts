@@ -59,21 +59,27 @@ export default class Account {
   public static async list({
     skip,
     take,
-    includeStaff,
+    includeStaff = false,
   }: {
     skip: number
     take: number
     includeStaff?: boolean
-  }) {
-    const list = await prisma.account.findMany({
-      include: {
-        staff: includeStaff,
-      },
-      skip,
-      take,
-    })
+  }): Promise<{
+    list: Account[]
+    totalCount: number
+  }> {
+    const [list, totalCount] = await prisma.$transaction([
+      prisma.account.findMany({
+        include: {
+          staff: includeStaff,
+        },
+        skip,
+        take,
+      }),
+      prisma.account.count(),
+    ])
 
-    return list.map(
+    const accountList = list.map(
       (_user) =>
         new Account({
           ..._user,
@@ -84,6 +90,11 @@ export default class Account {
           staff: _user.staff ? _user.staff : undefined,
         })
     )
+
+    return {
+      list: accountList,
+      totalCount,
+    }
   }
 
   public get id() {
