@@ -39,7 +39,7 @@ export const postAccountsSignInCtrl: RouteHandler<{
         provider: 'google',
       }).create()
       if (!newAccount) return rep.status(500).send()
-      // TODO send email to admin
+      // TODO send email to administrator (어드민 요청 이메일을 관리자에게 보내는 작업이 추가적으로 필요)
       return rep.status(201).send({
         account: newAccount.serialize(),
         auth_token: null,
