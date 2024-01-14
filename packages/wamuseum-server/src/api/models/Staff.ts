@@ -55,6 +55,26 @@ export default class Staff {
     })
   }
 
+  public static async list({
+    skip,
+    take,
+  }: {
+    skip: number
+    take: number
+  }): Promise<Staff[]> {
+    const list = await prisma.staff.findMany({
+      skip,
+      take,
+    })
+
+    return list.map(
+      (staffEach) =>
+        new Staff({
+          ...staffEach,
+        })
+    )
+  }
+
   public get is_staff() {
     return this.props.is_staff ?? false
   }
