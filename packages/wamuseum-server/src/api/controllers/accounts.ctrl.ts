@@ -6,6 +6,7 @@ import generateAuthTokenFromAccount from '../../lib/generateAuthTokenFromAccount
 import { JWTDecoded } from '../../types/jwt'
 import AuthToken from '../models/AuthToken'
 import Staff from '../models/Staff'
+import { sendEmail } from '../../lib/mailer'
 
 const PostAccountsSignInCtrlBodySchema = z.object({
   provider: z.string(),
@@ -39,7 +40,11 @@ export const postAccountsSignInCtrl: RouteHandler<{
         provider: 'google',
       }).create()
       if (!newAccount) return rep.status(500).send()
-      // TODO send email to administrator (어드민 요청 이메일을 관리자에게 보내는 작업이 추가적으로 필요)
+      sendEmail({
+        to: process.env.MAILER_EMAIL_ADDRESS,
+        subject: '[Admin Request] Admin request has been submitted',
+        text: `Hello, coldsurf administrator. You've got request email.\nNew comer email: ${gmail}`,
+      })
       return rep.status(201).send({
         account: newAccount.serialize(),
         auth_token: null,
