@@ -1,6 +1,7 @@
 import { FastifyError, RouteHandler } from 'fastify'
 import Staff from '../models/Staff'
 import { JWTDecoded } from '../../types/jwt'
+import { parseQuerystringPage } from '../../lib/parseQuerystringPage'
 
 export const getStaffListCtrl: RouteHandler<{
   Querystring: {
@@ -8,9 +9,7 @@ export const getStaffListCtrl: RouteHandler<{
   }
 }> = async (req, rep) => {
   try {
-    const { page: _page } = req.query
-    const numberfiedPage = _page ? +_page : 1
-    const page = Number.isNaN(numberfiedPage) ? 1 : numberfiedPage
+    const page = parseQuerystringPage(req.query.page)
     const perPage = 10
 
     const list = await Staff.list({

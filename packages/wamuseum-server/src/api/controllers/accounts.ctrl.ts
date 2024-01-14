@@ -8,6 +8,7 @@ import { JWTDecoded } from '../../types/jwt'
 import AuthToken from '../models/AuthToken'
 import Staff from '../models/Staff'
 import { sendEmail } from '../../lib/mailer'
+import { parseQuerystringPage } from '../../lib/parseQuerystringPage'
 
 const mailerSubject = '[Admin Request] Admin request has been submitted'
 const mailerText = (gmail: string) =>
@@ -21,6 +22,26 @@ const PostAccountsSignInCtrlBodySchema = z.object({
 type PostAccountsSignInCtrlBodySchemaType = z.infer<
   typeof PostAccountsSignInCtrlBodySchema
 >
+
+export const getAccountsListCtrl: RouteHandler<{
+  Querystring: {
+    page?: string
+  }
+}> = async (req, rep) => {
+  try {
+    const page = parseQuerystringPage(req.query.page)
+    const perPage = 10
+    const list = await Account.list({
+      skip: (page - 1) * perPage,
+      take: perPage,
+      includeStaff: true,
+    })
+    return rep.status(200).send(list.map((each) => each.serialize()))
+  } catch (e) {
+    const error = e as FastifyError
+    return rep.status(error.statusCode ?? 500).send(error)
+  }
+}
 
 export const postAccountsSignInCtrl: RouteHandler<{
   Body: PostAccountsSignInCtrlBodySchemaType
