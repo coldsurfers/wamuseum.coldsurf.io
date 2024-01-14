@@ -8,6 +8,7 @@ import { JWTDecoded } from '../../types/jwt'
 import AuthToken from '../models/AuthToken'
 import Staff from '../models/Staff'
 import { sendEmail } from '../../lib/mailer'
+import { parseQuerystringPage } from '../../lib/parseQuerystringPage'
 
 const mailerSubject = '[Admin Request] Admin request has been submitted'
 const mailerText = (gmail: string) =>
@@ -28,6 +29,8 @@ export const getAccountsListCtrl: RouteHandler<{
   }
 }> = async (req, rep) => {
   try {
+    const page = parseQuerystringPage(req.query.page)
+    const perPage = 10
     return rep.status(200).send([])
   } catch (e) {
     const error = e as FastifyError
