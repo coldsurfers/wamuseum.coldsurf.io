@@ -36,6 +36,7 @@ export const getAccountsListCtrl: RouteHandler<{
       take: perPage,
       includeStaff: true,
     })
+    console.log(list)
     return rep.status(200).send(list.map((each) => each.serialize()))
   } catch (e) {
     const error = e as FastifyError
@@ -67,7 +68,7 @@ export const postAccountsSignInCtrl: RouteHandler<{
       }).create()
       if (!newAccount) return rep.status(500).send()
       sendEmail({
-        to: nconf.get('secrets').MAILER_EMAIL_ADDRESS,
+        to: nconf.get('MAILER_EMAIL_ADDRESS'),
         subject: mailerSubject,
         text: mailerText(gmail),
       })

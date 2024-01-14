@@ -98,7 +98,12 @@ export default class Account {
     const created = await prisma.account.create({
       data: {
         ...this.props,
-        staff: undefined,
+        staff: {
+          create: {
+            is_authorized: false,
+            is_staff: false,
+          },
+        },
       },
     })
 
