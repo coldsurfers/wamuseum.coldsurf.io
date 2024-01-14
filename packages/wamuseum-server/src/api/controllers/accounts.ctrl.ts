@@ -8,6 +8,10 @@ import AuthToken from '../models/AuthToken'
 import Staff from '../models/Staff'
 import { sendEmail } from '../../lib/mailer'
 
+const mailerSubject = '[Admin Request] Admin request has been submitted'
+const mailerText = (gmail: string) =>
+  `Hello, coldsurf administrator. You've got request email.\nNew comer email: ${gmail}`
+
 const PostAccountsSignInCtrlBodySchema = z.object({
   provider: z.string(),
   access_token: z.string(),
@@ -42,8 +46,8 @@ export const postAccountsSignInCtrl: RouteHandler<{
       if (!newAccount) return rep.status(500).send()
       sendEmail({
         to: process.env.MAILER_EMAIL_ADDRESS,
-        subject: '[Admin Request] Admin request has been submitted',
-        text: `Hello, coldsurf administrator. You've got request email.\nNew comer email: ${gmail}`,
+        subject: mailerSubject,
+        text: mailerText(gmail),
       })
       return rep.status(201).send({
         account: newAccount.serialize(),
