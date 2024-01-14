@@ -31,7 +31,12 @@ export const getAccountsListCtrl: RouteHandler<{
   try {
     const page = parseQuerystringPage(req.query.page)
     const perPage = 10
-    return rep.status(200).send([])
+    const list = await Account.list({
+      skip: (page - 1) * perPage,
+      take: perPage,
+      includeStaff: true,
+    })
+    return rep.status(200).send(list.map((each) => each.serialize()))
   } catch (e) {
     const error = e as FastifyError
     return rep.status(error.statusCode ?? 500).send(error)

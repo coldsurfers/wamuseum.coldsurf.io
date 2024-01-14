@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { z } from 'zod'
 import { prisma } from '../database/prisma'
-import { StaffModelSchema, StaffSerializedSchema } from './Staff'
+import Staff, { StaffModelSchema, StaffSerializedSchema } from './Staff'
 
 export const AccountModelSchema = z.object({
   id: z.string().optional(),
@@ -170,11 +170,17 @@ export default class Account {
   }
 
   public serialize(): AccountSerializedSchemaType {
+    const staff = this.props.staff
+      ? new Staff({
+          ...this.props.staff,
+        })
+      : undefined
     return {
       id: this.props.id ?? '',
       email: this.props.email,
       username: this.props.username ?? '',
       created_at: this.props.created_at?.toISOString() ?? '',
+      staff: staff?.serialize() ?? undefined,
     }
   }
 }
