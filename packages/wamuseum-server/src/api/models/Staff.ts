@@ -39,6 +39,18 @@ export default class Staff {
     })
   }
 
+  public static async findByStaffId(staffId: string): Promise<Staff | null> {
+    const found = await prisma.staff.findUnique({
+      where: {
+        id: staffId,
+      },
+    })
+    if (!found) return null
+    return new Staff({
+      ...found,
+    })
+  }
+
   public static async findByAccountId(
     accountId: string
   ): Promise<Staff | null> {
@@ -50,6 +62,40 @@ export default class Staff {
 
     if (!staff) return null
 
+    return new Staff({
+      ...staff,
+    })
+  }
+
+  public static async list({
+    skip,
+    take,
+  }: {
+    skip: number
+    take: number
+  }): Promise<Staff[]> {
+    const list = await prisma.staff.findMany({
+      skip,
+      take,
+    })
+
+    return list.map(
+      (staffEach) =>
+        new Staff({
+          ...staffEach,
+        })
+    )
+  }
+
+  public static async authorizeByStaffId(staffId: string): Promise<Staff> {
+    const staff = await prisma.staff.update({
+      where: {
+        id: staffId,
+      },
+      data: {
+        is_authorized: true,
+      },
+    })
     return new Staff({
       ...staff,
     })
