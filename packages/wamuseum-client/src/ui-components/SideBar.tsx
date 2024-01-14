@@ -5,9 +5,12 @@ export default function SideBar() {
   return (
     <div className={styles.root}>
       <ul>
-        <Link href="/louder">
-          <li>Louder</li>
-        </Link>
+        <li>
+          <Link href="/louder">Louder</Link>
+        </li>
+        <li>
+          <Link href="/accounts">Accounts</Link>
+        </li>
       </ul>
     </div>
   )
