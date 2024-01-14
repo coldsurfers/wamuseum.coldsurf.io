@@ -31,12 +31,15 @@ export const getAccountsListCtrl: RouteHandler<{
   try {
     const page = parseQuerystringPage(req.query.page)
     const perPage = 10
-    const list = await Account.list({
+    const { list, totalCount } = await Account.list({
       skip: (page - 1) * perPage,
       take: perPage,
       includeStaff: true,
     })
-    return rep.status(200).send(list.map((each) => each.serialize()))
+    return rep.status(200).send({
+      data: list.map((each) => each.serialize()),
+      totalCount,
+    })
   } catch (e) {
     const error = e as FastifyError
     return rep.status(error.statusCode ?? 500).send(error)
@@ -67,7 +70,7 @@ export const postAccountsSignInCtrl: RouteHandler<{
       }).create()
       if (!newAccount) return rep.status(500).send()
       sendEmail({
-        to: nconf.get('secrets').MAILER_EMAIL_ADDRESS,
+        to: nconf.get('MAILER_EMAIL_ADDRESS'),
         subject: mailerSubject,
         text: mailerText(gmail),
       })
