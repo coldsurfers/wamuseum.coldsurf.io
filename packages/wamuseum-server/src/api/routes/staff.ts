@@ -20,7 +20,7 @@ const staffRoute: FastifyPluginCallback = (fastify, opts, done) => {
   })
   fastify.get('/staff', getStaffListCtrl)
   fastify.get('/staff/:staffId', getStaffDetailCtrl)
-  fastify.post('/staff/authorize', postStaffAuthorizeCtrl)
+  fastify.post('/staff/:staffId/authorize', postStaffAuthorizeCtrl)
   done()
 }
 
