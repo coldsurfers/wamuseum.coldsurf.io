@@ -24,6 +24,20 @@ export const getStaffListCtrl: RouteHandler<{
   }
 }
 
-export const getStaffDetailCtrl: RouteHandler<{}> = (req, rep) => {}
+export const getStaffDetailCtrl: RouteHandler<{}> = async (req, rep) => {
+  try {
+    return rep.status(200).send([])
+  } catch (e) {
+    const error = e as FastifyError
+    return rep.status(500).send(error)
+  }
+}
 
-export const postStaffAuthorizeCtrl: RouteHandler<{}> = (req, rep) => {}
+export const postStaffAuthorizeCtrl: RouteHandler<{}> = async (req, rep) => {
+  try {
+    return rep.status(200).send([])
+  } catch (e) {
+    const error = e as FastifyError
+    return rep.status(500).send(error)
+  }
+}
