@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { z } from 'zod'
 import { prisma } from '../database/prisma'
+import { StaffModelSchema, StaffSerializedSchema } from './Staff'
 
 export const AccountModelSchema = z.object({
   id: z.string().optional(),
@@ -10,6 +11,7 @@ export const AccountModelSchema = z.object({
   passwordSalt: z.string().optional(),
   created_at: z.date().optional(),
   provider: z.string().optional(),
+  staff: StaffModelSchema.optional(),
 })
 
 export type AccountModelSchemaType = z.infer<typeof AccountModelSchema>
@@ -19,6 +21,7 @@ export const AccountSerializedSchema = z.object({
   email: z.string().email(),
   username: z.string(),
   created_at: z.string(),
+  staff: StaffSerializedSchema.optional(),
 })
 
 export type AccountSerializedSchemaType = z.infer<
@@ -53,6 +56,36 @@ export default class Account {
     return user
   }
 
+  public static async list({
+    skip,
+    take,
+    includeStaff,
+  }: {
+    skip: number
+    take: number
+    includeStaff?: boolean
+  }) {
+    const list = await prisma.account.findMany({
+      include: {
+        staff: includeStaff,
+      },
+      skip,
+      take,
+    })
+
+    return list.map(
+      (_user) =>
+        new Account({
+          ..._user,
+          username: _user.username ?? undefined,
+          password: _user.password ?? undefined,
+          passwordSalt: _user.passwordSalt ?? undefined,
+          provider: _user.provider ?? undefined,
+          staff: _user.staff ? _user.staff : undefined,
+        })
+    )
+  }
+
   public get id() {
     return this.props.id
   }
@@ -65,6 +98,7 @@ export default class Account {
     const created = await prisma.account.create({
       data: {
         ...this.props,
+        staff: undefined,
       },
     })
 
